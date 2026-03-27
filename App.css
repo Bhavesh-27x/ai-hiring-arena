@@ -1,0 +1,207 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 2rem;
+  letter-spacing: -0.5px;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 1.2rem;
+}
+
+/* ── Card ── */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2.5rem;
+  width: 360px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card.wide {
+  width: 520px;
+}
+
+/* ── Form Elements ── */
+input,
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: #f9fafb;
+  color: #1a1a2e;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #4a9eed;
+  background: #fff;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* ── Buttons ── */
+.start-btn {
+  width: 100%;
+  padding: 14px 48px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #4a9eed;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  margin-top: 4px;
+}
+
+.container > .start-btn {
+  width: auto;
+}
+
+.start-btn:hover {
+  background-color: #3a8ad8;
+  transform: translateY(-1px);
+}
+
+.start-btn:active {
+  transform: translateY(0);
+}
+
+.logout-btn {
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  background: #e5e7eb;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #d1d5db;
+}
+
+/* ── Role Toggle ── */
+.role-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.role-btn {
+  flex: 1;
+  padding: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  background: #f9fafb;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.role-btn.active {
+  border-color: #4a9eed;
+  background: #eaf3fd;
+  color: #2b7fd4;
+}
+
+/* ── Text ── */
+.error {
+  color: #d9534f;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+
+.switch-text {
+  text-align: center;
+  font-size: 0.88rem;
+  color: #777;
+  margin-top: 16px;
+}
+
+.link {
+  color: #4a9eed;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.subtitle {
+  color: #777;
+  font-size: 0.92rem;
+  margin-bottom: 1.5rem;
+  margin-top: -0.5rem;
+}
+
+/* ── Page Header ── */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.page-header h2 {
+  margin-bottom: 0;
+}
+
+/* ── Dashboard ── */
+.dashboard-content {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background: #f5f7fa;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4a9eed;
+}
+
+.stat-label {
+  font-size: 0.82rem;
+  color: #888;
+  margin-top: 4px;
+  font-weight: 600;
+}
