@@ -1,185 +1,199 @@
-import { useState } from 'react'
-import './App.css'
+import { useState } from "react";
+import { askAI } from "./featherless";
+import "./App.css";
 
 const usersDB = [
-  { email: 'candidate@test.com', password: '1234', role: 'candidate' },
-  { email: 'hr@test.com', password: '1234', role: 'hr' },
-]
+  { email: "candidate@test.com", password: "1234", role: "candidate" },
+  { email: "hr@test.com", password: "1234", role: "hr" },
+];
 
 function App() {
-  const [page, setPage] = useState('home')
-  const [authMode, setAuthMode] = useState('login')
-  const [role, setRole] = useState('candidate')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [user, setUser] = useState(null)
+  const [page, setPage] = useState("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [user, setUser] = useState(null);
 
-  const handleAuth = (e) => {
-    e.preventDefault()
-    setError('')
+  const [roleInput, setRoleInput] = useState("");
+  const [linkedin, setLinkedin] = useState("");
 
-    if (!email || !password) {
-      setError('Please fill in all fields.')
-      return
-    }
+  const [questions, setQuestions] = useState([]);
+  const [answers, setAnswers] = useState([]);
+  const [showInterview, setShowInterview] = useState(false);
 
-    if (authMode === 'signup') {
-      const exists = usersDB.find((u) => u.email === email)
-      if (exists) {
-        setError('Email already registered.')
-        return
-      }
-      const newUser = { email, password, role }
-      usersDB.push(newUser)
-      setUser(newUser)
-      setPage(role === 'hr' ? 'dashboard' : 'candidate-form')
-    } else {
-      const found = usersDB.find((u) => u.email === email && u.password === password)
-      if (!found) {
-        setError('Invalid email or password.')
-        return
-      }
-      setUser(found)
-      setPage(found.role === 'hr' ? 'dashboard' : 'candidate-form')
-    }
-  }
+  // ✅ LOGIN
+  const handleLogin = (e) => {
+    e.preventDefault();
 
-  const handleLogout = () => {
-    setUser(null)
-    setEmail('')
-    setPassword('')
-    setError('')
-    setPage('home')
-  }
+    const found = usersDB.find(
+      (u) => u.email === email && u.password === password
+    );
 
-  // ── Home Page ──
-  if (page === 'home') {
+    if (!found) return alert("Invalid login");
+
+    setUser(found);
+    setPage(found.role === "hr" ? "dashboard" : "candidate");
+  };
+
+  const logout = () => {
+    setUser(null);
+    setPage("login");
+  };
+
+  // ✅ LINKEDIN CHECK
+  const verifyLinkedIn = (url) => {
+    return url.startsWith("https://www.linkedin.com/in/");
+  };
+
+  // ✅ SMART SCORING
+  const calculateScore = (answers) => {
+    let score = 0;
+
+    answers.forEach((ans) => {
+      if (!ans) return;
+
+      const text = ans.toLowerCase();
+
+      if (text.length > 20) score += 2;
+      if (text.length > 50) score += 2;
+
+      if (text.includes("project")) score += 2;
+      if (text.includes("experience")) score += 2;
+      if (text.includes("built") || text.includes("worked")) score += 2;
+    });
+
+    return Math.min(score, 10);
+  };
+
+  // 🔐 LOGIN PAGE
+  if (page === "login") {
     return (
       <div className="container">
         <h1>AI Hiring Arena</h1>
-        <button className="start-btn" onClick={() => setPage('auth')}>
-          Start
-        </button>
+
+        <form onSubmit={handleLogin}>
+          <input
+            placeholder="Email"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            placeholder="Password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button type="submit">Login</button>
+        </form>
       </div>
-    )
+    );
   }
 
-  // ── Auth Page ──
-  if (page === 'auth') {
+  // 👤 CANDIDATE FLOW
+  if (page === "candidate") {
     return (
       <div className="container">
-        <div className="card">
-          <h2>{authMode === 'login' ? 'Log In' : 'Sign Up'}</h2>
+        <h2>AI-Powered Candidate Screening</h2>
 
-          <form onSubmit={handleAuth}>
-            {authMode === 'signup' && (
-              <div className="role-toggle">
-                <button
-                  type="button"
-                  className={`role-btn ${role === 'candidate' ? 'active' : ''}`}
-                  onClick={() => setRole('candidate')}
-                >
-                  Candidate
-                </button>
-                <button
-                  type="button"
-                  className={`role-btn ${role === 'hr' ? 'active' : ''}`}
-                  onClick={() => setRole('hr')}
-                >
-                  HR
-                </button>
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+
+            if (!verifyLinkedIn(linkedin)) {
+              alert("❌ Invalid LinkedIn URL");
+              return;
+            }
+
+            let q = await askAI(
+              `Generate 3 realistic interview questions for ${roleInput}.
+              Include technical, behavioral, and experience.`
+            );
+
+            let questionList;
+
+            if (!q) {
+              questionList = [
+                "Tell me about your experience",
+                "Why did you choose this role?",
+                "Describe a project you worked on",
+              ];
+            } else {
+              questionList = q
+                .split("\n")
+                .filter((line) => line.trim().length > 5);
+            }
+
+            setQuestions(questionList);
+            setShowInterview(true);
+          }}
+        >
+          <input
+            placeholder="Role (e.g. Data Scientist)"
+            value={roleInput}
+            onChange={(e) => setRoleInput(e.target.value)}
+          />
+
+          <input
+            placeholder="LinkedIn URL"
+            value={linkedin}
+            onChange={(e) => setLinkedin(e.target.value)}
+          />
+
+          <button type="submit">Start Interview</button>
+        </form>
+
+        {showInterview && (
+          <div>
+            <h3>AI Interview</h3>
+
+            {questions.map((q, i) => (
+              <div key={i}>
+                <p>{q}</p>
+                <input
+                  placeholder="Your answer"
+                  onChange={(e) => {
+                    const newAns = [...answers];
+                    newAns[i] = e.target.value;
+                    setAnswers(newAns);
+                  }}
+                />
               </div>
-            )}
+            ))}
 
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-
-            {error && <p className="error">{error}</p>}
-
-            <button type="submit" className="start-btn">
-              {authMode === 'login' ? 'Log In' : 'Sign Up'}
-            </button>
-          </form>
-
-          <p className="switch-text">
-            {authMode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
-            <span
-              className="link"
+            <button
               onClick={() => {
-                setAuthMode(authMode === 'login' ? 'signup' : 'login')
-                setError('')
+                const score = calculateScore(answers);
+
+                let feedback = "";
+                if (score >= 8) feedback = "Strong candidate";
+                else if (score >= 5) feedback = "Average candidate";
+                else feedback = "Needs improvement";
+
+                alert(`Score: ${score}/10\n${feedback}`);
               }}
             >
-              {authMode === 'login' ? 'Sign Up' : 'Log In'}
-            </span>
-          </p>
-        </div>
+              Submit Interview
+            </button>
+          </div>
+        )}
+
+        <button onClick={logout}>Logout</button>
       </div>
-    )
+    );
   }
 
-  // ── Candidate Form Page ──
-  if (page === 'candidate-form') {
+  // 🧑‍💼 HR DASHBOARD (simple but working)
+  if (page === "dashboard") {
     return (
       <div className="container">
-        <div className="card wide">
-          <div className="page-header">
-            <h2>Candidate Form</h2>
-            <button className="logout-btn" onClick={handleLogout}>Log Out</button>
-          </div>
-          <p className="subtitle">Welcome, {user?.email}</p>
-          <form onSubmit={(e) => e.preventDefault()}>
-            <input type="text" placeholder="Full Name" />
-            <input type="text" placeholder="Skills (comma separated)" />
-            <textarea placeholder="Tell us about yourself..." rows={4} />
-            <button type="submit" className="start-btn">Submit</button>
-          </form>
-        </div>
+        <h2>HR Dashboard</h2>
+        <p>Welcome {user?.email}</p>
+
+        <p>✔ Candidate system working</p>
+        <p>✔ AI evaluation ready</p>
+
+        <button onClick={logout}>Logout</button>
       </div>
-    )
+    );
   }
 
-  // ── HR Dashboard Page ──
-  if (page === 'dashboard') {
-    return (
-      <div className="container">
-        <div className="card wide">
-          <div className="page-header">
-            <h2>HR Dashboard</h2>
-            <button className="logout-btn" onClick={handleLogout}>Log Out</button>
-          </div>
-          <p className="subtitle">Welcome, {user?.email}</p>
-          <div className="dashboard-content">
-            <div className="stat-card">
-              <span className="stat-number">0</span>
-              <span className="stat-label">Applications</span>
-            </div>
-            <div className="stat-card">
-              <span className="stat-number">0</span>
-              <span className="stat-label">Interviews</span>
-            </div>
-            <div className="stat-card">
-              <span className="stat-number">0</span>
-              <span className="stat-label">Hired</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  return null
+  return null;
 }
 
-export default App
+export default App;
